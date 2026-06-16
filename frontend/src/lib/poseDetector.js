@@ -1,4 +1,4 @@
-import { PoseLandmarker, FilesetResolver } from "mediapipe/tasks-vision";
+import { PoseLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
 
 export async function createPoseLandmarker () {
     const vision = await FilesetResolver.forVisionTasks(
@@ -8,7 +8,7 @@ export async function createPoseLandmarker () {
         baseOptions: {
             modelAssetPath:
                 "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
-            delegate: "GPU"
+            delegate: "CPU"
         },
         runningMode: "VIDEO",
         numPoses: 1,
