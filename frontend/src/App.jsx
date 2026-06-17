@@ -15,6 +15,24 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
+  const [videoUrl, setVideoUrl] = useState(null);
+
+  async function loadDance(idOrTitle, byTitle = false) {
+    const url = byTitle
+      ? `http://localhost:8000/dances/by-title/${encodeURIComponent(idOrTitle)}`
+      : `http://localhost:8000/dances/${idOrTitle}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) return;
+    setSteps(data.steps ?? []);
+    setDanceId(data.id ?? null);
+    setKeyframes(data.keypoints ?? []);
+    setVideoUrl(data.video_url ?? null);
+  }
+
+  function handleDanceSaved(result) {
+    loadDance(result.id);
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -29,25 +47,6 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!session) return;
-
-    fetch("/sample-dance-keypoints.json")
-      .then((r) => r.json())
-      .then(setKeyframes);
-
-    fetch("http://localhost:8000/dances/by-title/Sample Dance")
-      .then((r) => r.json())
-      .then((data) => {
-        setSteps(data.steps ?? []);
-        setDanceId(data.id ?? null);
-      });
-  }, [session]);
-
-  function handleDanceSaved(result) {
-    setSteps(result.steps);
-    setDanceId(result.id);
-  }
 
   if (authLoading) {
     return (
@@ -68,13 +67,26 @@ export default function App() {
         onUpload={() => setShowUpload(true)}
       />
       <main className="flex-1 px-4 pt-2 pb-16 md:pb-2 min-h-0 overflow-y-auto md:overflow-hidden md:max-h-[calc(100vh-52px)]">
-        {tab === "learn" && <DancePlayer videoUrl="/sample-dance.mp4" steps={steps} />}
+        {tab === "learn" && (
+          videoUrl
+            ? <DancePlayer videoUrl={videoUrl} steps={steps} />
+            : <div className="flex flex-col items-center justify-center h-full gap-3 text-zinc-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p className="text-sm">Import your videos</p>
+                <button
+                  onClick={() => setShowUpload(true)}
+                  className="text-xs text-cyan-500 hover:text-cyan-400 transition-colors"
+                >
+                  Upload a dance
+                </button>
+              </div>
+        )}
         {tab === "practice" && (
-          <PracticeMode
-            keyframes={keyframes}
-            steps={steps}
-            danceId={danceId}
-          />
+          <PracticeMode videoUrl={videoUrl} keyframes={keyframes} steps={steps} danceId={danceId} />
         )}
         {tab === "progress" && <Progress />}
       </main>

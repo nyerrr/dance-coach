@@ -50,7 +50,7 @@ function scoreColor(s) {
   return "#f87171";
 }
 
-export default function PracticeMode({ keyframes = [], steps = [], danceId }) {
+export default function PracticeMode({  videoUrl, keyframes = [], steps = [], danceId }) {
   const videoRef = useRef(null);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -104,10 +104,10 @@ export default function PracticeMode({ keyframes = [], steps = [], danceId }) {
       <div className="flex gap-2 md:flex-1 md:min-h-0">
         <div className="flex-1 flex flex-col min-w-0">
           <p className="text-[11px] tracking-wider uppercase text-white/30 mb-1">Reference</p>
-          <div className="relative bg-black rounded-2xl overflow-hidden aspect-[9/16] md:aspect-auto md:flex-1 md:min-h-0">
+          <div className="relative bg-black rounded-2xl overflow-hidden aspect-9/16 md:aspect-auto md:flex-1 md:min-h-0">
             <video
               ref={videoRef}
-              src="/sample-dance.mp4"
+              src={videoUrl}
               controls
               onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)}
               className="w-full h-full object-contain"
@@ -119,14 +119,14 @@ export default function PracticeMode({ keyframes = [], steps = [], danceId }) {
           <p className="text-[11px] tracking-wider uppercase text-white/30 mb-1">
             You <span className="text-cyan-400">({status})</span>
           </p>
-          <div className="relative bg-black rounded-2xl overflow-hidden aspect-[9/16] md:aspect-auto md:flex-1 md:min-h-0">
-            <video ref={webcamRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover [transform:scaleX(-1)]" />
-            <canvas ref={canvasRef} width={640} height={480} className="absolute inset-0 w-full h-full [transform:scaleX(-1)]" />
+          <div className="relative bg-black rounded-2xl overflow-hidden aspect-9/16 md:aspect-auto md:flex-1 md:min-h-0">
+            <video ref={webcamRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover transform-[scaleX(-1)]" />
+            <canvas ref={canvasRef} width={640} height={480} className="absolute inset-0 w-full h-full transform-[scaleX(-1)]" />
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 w-full md:w-[200px] md:flex-shrink-0">
+      <div className="flex flex-col gap-3 w-full md:w-50 md:shrink-0">
         <div className="flex md:flex-col gap-3">
           <div className="flex-1 bg-[#111113] rounded-xl border border-[#1f1f23] p-2 md:p-4 text-center">
             <p className="text-[9px] md:text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-1 md:mb-2">Match score</p>

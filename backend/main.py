@@ -8,6 +8,7 @@ from supabase import create_client
 from extract_pose import extract_keypoints
 from segment_steps import segment_steps
 from dotenv import load_dotenv
+from uuid import uuid4
 
 load_dotenv()
 
@@ -36,7 +37,7 @@ async def process_dance(file: UploadFile = File(...)):
         frames = extract_keypoints(tmp_path)
         steps = segment_steps(frames, min_step_duration=2.5, smoothing_window=8)
 
-        storage_path = f"dances/{file.filename}"
+        storage_path = f"dances/{uuid4()}{suffix}"
         with open(tmp_path, "rb") as f:
             supabase.storage.from_("videos").upload(
                 storage_path, f, {"content-type": "video/mp4", "upsert": "true"}

@@ -25,9 +25,9 @@ export default function WebcamView() {
   }, [landmarks]);
 
   return (
-    <div className="relative w-[640px] h-[480px] bg-black rounded-lg overflow-hidden mx-auto">
-      <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full [transform:scaleX(-1)]" />
-      <canvas ref={canvasRef} width={640} height={480} className="absolute inset-0 w-full h-full [transform:scaleX(-1)]" />
+    <div className="relative w-160 h-120 bg-black rounded-lg overflow-hidden mx-auto">
+      <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full transform-[scaleX(-1)]" />
+      <canvas ref={canvasRef} width={640} height={480} className="absolute inset-0 w-full h-full transform-[scaleX(-1)]" />
       <p className="absolute top-2 left-2 text-xs text-white/70">{status}</p>
     </div>
   );
