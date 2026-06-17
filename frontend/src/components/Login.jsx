@@ -23,10 +23,12 @@ export default function Login() {
   function applyVolume(val) {
     const v = Math.round(val * 100) / 100;
     setVolume(v);
-    if (videoRef.current) videoRef.current.volume = v;
+    if (videoRef.current) {
+      videoRef.current.muted = v === 0;
+      videoRef.current.volume = v > 0 ? v : 0;
+    }
     if (audioRef.current) audioRef.current.volume = v;
   }
-
   function handleVolumeSlider(e) {
     const v = parseFloat(e.target.value);
     applyVolume(v);
@@ -118,7 +120,6 @@ export default function Login() {
             autoPlay
             loop
             playsInline
-            muted
             preload="auto"
             className="absolute inset-0 w-full h-full object-cover opacity-60"
           >
