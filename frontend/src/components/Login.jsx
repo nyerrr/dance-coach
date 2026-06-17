@@ -129,7 +129,7 @@ export default function Login() {
             playsInline
             className="absolute inset-0 w-full h-full object-cover opacity-60"
           >
-            <source src="https://yjkvfbuyjlxnaeuivgxs.supabase.co/storage/v1/object/public/videos/sample-dance.mp4" type="video/mp4" />
+            <source src="https://yjkvfbuyjlxnaeuivgxs.supabase.co/storage/v1/object/public/videos/dances/sample-dance.mp4" type="video/mp4" />
           </video>
 
           {/* Gradient overlay — fades up on mobile, fades right on desktop */}
