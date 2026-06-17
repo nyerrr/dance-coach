@@ -20,15 +20,20 @@ export default function Login() {
     vid.play().catch(() => {});
   }, []);
 
-  function applyVolume(val) {
+ function applyVolume(val) {
     const v = Math.round(val * 100) / 100;
     setVolume(v);
     if (videoRef.current) {
       videoRef.current.muted = v === 0;
       videoRef.current.volume = v > 0 ? v : 0;
+      if (videoRef.current.paused) {
+        videoRef.current.play().catch(() => {});
+      }
     }
     if (audioRef.current) audioRef.current.volume = v;
   }
+
+
   function handleVolumeSlider(e) {
     const v = parseFloat(e.target.value);
     applyVolume(v);
