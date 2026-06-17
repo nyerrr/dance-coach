@@ -55,10 +55,10 @@ export default function DancePlayer({ videoUrl, steps = [] }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 w-full md:w-[220px] md:flex-shrink-0 overflow-hidden">
+      <div className="flex flex-col gap-3 w-full md:w-55 md:shrink-0 overflow-hidden">
 
-        <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 flex-shrink-0">
-          <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-3">Playback</p>
+        <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 shrink-0">
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-3">Playback</p>
           <div className="flex gap-1">
             {SPEEDS.map((s) => (
               <button key={s} onClick={() => setSpeed(s)}
@@ -74,21 +74,21 @@ export default function DancePlayer({ videoUrl, steps = [] }) {
         </div>
 
         <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 flex-1 min-h-0 max-h-64 md:max-h-none overflow-auto">
-          <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-3">Steps</p>
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-3">Steps</p>
           <ul className="flex flex-col gap-1.5">
             {steps.map((step, i) => (
               <li key={i}>
                 <div onClick={() => seekToStep(i)}
                   className={`flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer border ${i === activeStepIndex ? "bg-cyan-950 border-cyan-800" : "bg-zinc-900 border-transparent"}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${i === activeStepIndex ? "bg-cyan-400" : "bg-zinc-600"}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${i === activeStepIndex ? "bg-cyan-400" : "bg-zinc-600"}`} />
                   <span className={`flex-1 text-sm truncate ${i === activeStepIndex ? "text-cyan-100" : "text-zinc-400"}`}>
                     {step.label ?? `Step ${i + 1}`}
                   </span>
-                  <span className={`text-[11px] flex-shrink-0 ${i === activeStepIndex ? "text-cyan-600" : "text-zinc-600"}`}>
+                  <span className={`text-[11px] shrink-0 ${i === activeStepIndex ? "text-cyan-600" : "text-zinc-600"}`}>
                     {step.startTime}–{step.endTime}s
                   </span>
                   <button onClick={(e) => { e.stopPropagation(); setLoopStep(loopStep === i ? null : i); }}
-                    className={`text-sm flex-shrink-0 ${loopStep === i ? "text-cyan-400" : "text-zinc-600"}`}>
+                    className={`text-sm shrink-0 ${loopStep === i ? "text-cyan-400" : "text-zinc-600"}`}>
                     ↺
                   </button>
                 </div>
