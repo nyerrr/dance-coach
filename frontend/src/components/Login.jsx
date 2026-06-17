@@ -17,16 +17,7 @@ export default function Login() {
     const vid = videoRef.current;
     if (!vid) return;
     vid.muted = true;
-    vid.play()
-      .then(() => {
-        vid.muted = false;
-        vid.volume = 0.4;
-      })
-      .catch(() => {
-        vid.muted = true;
-        vid.volume = 0.4;
-      });
-    if (audioRef.current) audioRef.current.volume = 0.4;
+    vid.play().catch(() => {});
   }, []);
 
   function applyVolume(val) {
