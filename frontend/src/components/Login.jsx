@@ -110,7 +110,7 @@ export default function Login() {
       `}</style>
 
       {/* Outer card — stacks vertically on mobile, side-by-side on md+ */}
-      <div className="w-full max-w-sm md:max-w-4xl flex flex-col md:flex-row rounded-[20px] overflow-hidden border border-white/8">
+      <div className="w-full max-w-sm md:max-w-6xl flex flex-col md:flex-row rounded-[20px] overflow-hidden border border-white/8">
 
         {/* ── Left / Top: video hero ── */}
         <div className="relative flex flex-col justify-end overflow-hidden bg-[#1a1426] min-h-55 md:min-h-140 md:flex-1 p-6 md:p-10">
@@ -179,7 +179,7 @@ export default function Login() {
               <span className="text-[10px] font-bold tracking-[0.15em] uppercase text-[#FFD23F]">Dance Coach</span>
             </div>
 
-            <h1 className="font-extrabold text-white leading-[1.15] tracking-tight text-[26px] md:text-[36px] mb-0 md:mb-3">
+            <h1 className="font-blackops font-semibold text-white leading-[1.15] tracking-tight text-[26px] md:text-[36px] mb-0 md:mb-3">
               Move better,{" "}
               <span className="md:hidden text-[#FF5C8A]">every rep.</span>
               <span className="hidden md:block text-[#FF5C8A]">every rep.</span>
@@ -187,7 +187,7 @@ export default function Login() {
 
             {/* Subtext + features — desktop only */}
             <div className="hidden md:block">
-              <p className="text-[13px] text-white/40 leading-relaxed max-w-65 mt-3 mb-6">
+              <p className="font-changatext-[16px] text-white/40 leading-relaxed max-w-full mt-3 mb-6">
                 Real-time pose tracking and AI scoring so you can master any routine at your own pace.
               </p>
               <div className="flex flex-col gap-2">
@@ -213,12 +213,12 @@ export default function Login() {
           <div className="card-land w-full max-w-sm mx-auto md:max-w-none">
 
             {/* Header */}
-            <div className="mb-7">
-              <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#FFD23F] mb-2">Dance Coach</p>
-              <h2 className="text-[22px] font-bold text-white mb-1 tracking-tight">
+            <div className="mb-7 text-center">
+              <p className="font-blackops text-[10px] font-bold tracking-[0.14em] uppercase text-[#FFD23F] mb-2">Dance Coach</p>
+              <h2 className="font-blackops text-[22px] font-bold text-white mb-1 tracking-tight">
                 {mode === "login" ? "Welcome back" : "Create account"}
               </h2>
-              <p className="text-[13px] text-white/35">
+              <p className="font-blackops text-[13px] text-white/35">
                 {mode === "login" ? "Sign in to continue your practice" : "Start your dance journey today"}
               </p>
             </div>
@@ -287,7 +287,7 @@ export default function Login() {
                 disabled={loading}
                 className="cursor-pointer w-full py-3 rounded-[9px] bg-[#FFD23F] text-[#0e0b14] text-sm font-bold disabled:opacity-50 tracking-wide hover:opacity-90 active:scale-[0.98] transition-all"
               >
-                {loading ? "Please wait…" : mode === "login" ? "Log in →" : "Create account →"}
+                {loading ? "Please wait…" : mode === "login" ? "Log in" : "Create account"}
               </button>
             </form>
 

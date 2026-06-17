@@ -2,6 +2,8 @@
 
 @theme {
   --breakpoint-xs: 400px;
+  --font-blackops: "Black Ops One", cursive;
+  --font-changa: "Changa One", cursive;
 }
 
 /* Volume slider */
