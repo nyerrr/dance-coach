@@ -79,7 +79,12 @@ export default function Login() {
   }
 
   async function handleGoogle() {
-    await supabase.auth.signInWithOAuth({ provider: "google" });
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
   }
 
   const volPct = muted ? 0 : Math.round(volume * 100);
