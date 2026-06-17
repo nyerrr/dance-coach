@@ -25,3 +25,7 @@ dist-ssr
 
 # env
 .env
+
+_pycache__/
+*.pyc
+*.pyo
