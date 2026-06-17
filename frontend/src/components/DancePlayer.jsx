@@ -38,12 +38,11 @@ export default function DancePlayer({ videoUrl, steps = [] }) {
   );
 
   return (
-    <div style={{ display: "flex", gap: "12px", height: "100%", width: "100%", overflow: "hidden" }}>
+    <div className="flex flex-col md:flex-row gap-3 w-full md:h-full overflow-hidden">
 
-      {/* Video */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", minWidth: 0, minHeight: 0 }}>
-        <div style={{ position: "relative", height: "100%", aspectRatio: "3/4", background: "#000", borderRadius: "16px", overflow: "hidden" }}>
-          <span style={{ position: "absolute", top: 12, left: 12, zIndex: 10, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", pointerEvents: "none" }}>
+      <div className="flex items-center justify-center min-w-0 md:flex-1 md:min-h-0">
+        <div className="relative w-full max-w-[420px] md:max-w-none md:w-auto md:h-full aspect-[3/4] bg-black rounded-2xl overflow-hidden">
+          <span className="absolute top-3 left-3 z-10 text-[11px] tracking-wider uppercase text-white/30 pointer-events-none">
             Reference
           </span>
           <video
@@ -51,73 +50,45 @@ export default function DancePlayer({ videoUrl, steps = [] }) {
             src={videoUrl}
             controls
             onTimeUpdate={handleTimeUpdate}
-            style={{ width: "100%", height: "100%", objectFit: "cover", transform: mirrored ? "scaleX(-1)" : "none" }}
+            className={`w-full h-full object-cover ${mirrored ? "[transform:scaleX(-1)]" : ""}`}
           />
         </div>
       </div>
 
-      {/* Sidebar */}
-      <div style={{ width: 220, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12, overflow: "hidden" }}>
+      <div className="flex flex-col gap-3 w-full md:w-[220px] md:flex-shrink-0 overflow-hidden">
 
-        {/* Playback */}
-        <div style={{ background: "#111113", borderRadius: 12, border: "1px solid #1f1f23", padding: 16 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#52525b", marginBottom: 12 }}>
-            Playback
-          </p>
-          <div style={{ display: "flex", gap: 4 }}>
+        <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 flex-shrink-0">
+          <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-3">Playback</p>
+          <div className="flex gap-1">
             {SPEEDS.map((s) => (
-              <button
-                key={s}
-                onClick={() => setSpeed(s)}
-                style={{
-                  flex: 1, padding: "6px 0", borderRadius: 8, fontSize: 12, fontWeight: 500, border: "none", cursor: "pointer",
-                  background: speed === s ? "#22d3ee" : "#27272a",
-                  color: speed === s ? "#083344" : "#71717a",
-                }}
-              >
+              <button key={s} onClick={() => setSpeed(s)}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-medium ${speed === s ? "bg-cyan-400 text-[#083344]" : "bg-zinc-800 text-zinc-500"}`}>
                 {s}×
               </button>
             ))}
           </div>
-          <button
-            onClick={() => setMirrored((m) => !m)}
-            style={{
-              width: "100%", marginTop: 8, padding: "8px 0", borderRadius: 8, fontSize: 13, border: "none", cursor: "pointer",
-              background: mirrored ? "#22d3ee" : "#27272a",
-              color: mirrored ? "#083344" : "#a1a1aa",
-            }}
-          >
+          <button onClick={() => setMirrored((m) => !m)}
+            className={`w-full mt-2 py-2 rounded-lg text-sm ${mirrored ? "bg-cyan-400 text-[#083344]" : "bg-zinc-800 text-zinc-400"}`}>
             ⇄ Mirror
           </button>
         </div>
 
-        {/* Steps */}
-        <div style={{ background: "#111113", borderRadius: 12, border: "1px solid #1f1f23", padding: 16, flex: 1, overflow: "auto" }}>
-          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#52525b", marginBottom: 12 }}>
-            Steps
-          </p>
-          <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 6 }}>
+        <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 flex-1 min-h-0 max-h-64 md:max-h-none overflow-auto">
+          <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-3">Steps</p>
+          <ul className="flex flex-col gap-1.5">
             {steps.map((step, i) => (
               <li key={i}>
-                <div
-                  onClick={() => seekToStep(i)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 9, cursor: "pointer",
-                    background: i === activeStepIndex ? "#083344" : "#1c1c1f",
-                    border: i === activeStepIndex ? "1px solid #164e63" : "1px solid transparent",
-                  }}
-                >
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", flexShrink: 0, background: i === activeStepIndex ? "#22d3ee" : "#3f3f46" }} />
-                  <span style={{ flex: 1, fontSize: 13, color: i === activeStepIndex ? "#e0f7fa" : "#a1a1aa", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div onClick={() => seekToStep(i)}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer border ${i === activeStepIndex ? "bg-cyan-950 border-cyan-800" : "bg-zinc-900 border-transparent"}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${i === activeStepIndex ? "bg-cyan-400" : "bg-zinc-600"}`} />
+                  <span className={`flex-1 text-sm truncate ${i === activeStepIndex ? "text-cyan-100" : "text-zinc-400"}`}>
                     {step.label ?? `Step ${i + 1}`}
                   </span>
-                  <span style={{ fontSize: 11, flexShrink: 0, color: i === activeStepIndex ? "#0891b2" : "#3f3f46" }}>
+                  <span className={`text-[11px] flex-shrink-0 ${i === activeStepIndex ? "text-cyan-600" : "text-zinc-600"}`}>
                     {step.startTime}–{step.endTime}s
                   </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setLoopStep(loopStep === i ? null : i); }}
-                    style={{ fontSize: 13, background: "none", border: "none", cursor: "pointer", flexShrink: 0, color: loopStep === i ? "#22d3ee" : "#3f3f46" }}
-                  >
+                  <button onClick={(e) => { e.stopPropagation(); setLoopStep(loopStep === i ? null : i); }}
+                    className={`text-sm flex-shrink-0 ${loopStep === i ? "text-cyan-400" : "text-zinc-600"}`}>
                     ↺
                   </button>
                 </div>

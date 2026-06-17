@@ -1,33 +1,50 @@
-export default function Nav({ tab, setTab, onSignOut }) {
+export default function Nav({ tab, setTab, onSignOut, onUpload }) {
   const tabs = ["learn", "practice", "progress"];
 
   return (
-    <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: 52, borderBottom: "1px solid #111113", background: "#09090b", flexShrink: 0, width: "100%" }}>
-      <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#22d3ee" }}>
-        Dance Coach
-      </span>
-      <div style={{ display: "flex", gap: 2, background: "#1c1c1f", borderRadius: 10, padding: 3 }}>
+    <>
+      <header className="flex items-center justify-between px-4 md:px-6 h-[52px] border-b border-[#111113] bg-[#09090b] flex-shrink-0 w-full">
+        <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-cyan-400">
+          Dance Coach
+        </span>
+
+        <div className="hidden md:flex gap-0.5 bg-[#1c1c1f] rounded-[10px] p-[3px]">
+          {tabs.map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-5 py-1.5 rounded-lg text-[13px] font-medium capitalize ${
+                tab === t ? "bg-zinc-700 text-white" : "bg-transparent text-zinc-500"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button onClick={onUpload} className="text-xs font-semibold text-[#083344] bg-cyan-400 rounded-lg px-3 py-1.5">
+            + Upload
+          </button>
+          <button onClick={onSignOut} className="text-xs text-zinc-500">
+            Sign out
+          </button>
+        </div>
+      </header>
+
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 flex items-center justify-around bg-[#09090b] border-t border-[#111113] h-14 z-50">
         {tabs.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            style={{
-              padding: "6px 20px", borderRadius: 8, fontSize: 13, fontWeight: 500,
-              textTransform: "capitalize", border: "none", cursor: "pointer",
-              background: tab === t ? "#3f3f46" : "transparent",
-              color: tab === t ? "#fff" : "#71717a",
-            }}
+            className={`flex-1 h-full text-xs font-medium capitalize ${
+              tab === t ? "text-cyan-400" : "text-zinc-500"
+            }`}
           >
             {t}
           </button>
         ))}
-      </div>
-      <button
-        onClick={onSignOut}
-        style={{ fontSize: 12, color: "#52525b", background: "none", border: "none", cursor: "pointer" }}
-      >
-        Sign out
-      </button>
-    </header>
+      </nav>
+    </>
   );
 }

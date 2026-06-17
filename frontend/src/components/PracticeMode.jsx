@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { usePoseLandmarker } from "../hooks/usePoseLandmarker";
 import { PoseLandmarker, DrawingUtils } from "@mediapipe/tasks-vision";
+import { saveProgress } from "../lib/progress";
 
 function normalize(landmarks) {
   const leftHip = landmarks[23];
@@ -49,7 +50,7 @@ function scoreColor(s) {
   return "#f87171";
 }
 
-export default function PracticeMode({ keyframes = [], steps = [] }) {
+export default function PracticeMode({ keyframes = [], steps = [], danceId }) {
   const videoRef = useRef(null);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -58,6 +59,9 @@ export default function PracticeMode({ keyframes = [], steps = [] }) {
   const [score, setScore] = useState(null);
   const [stepScores, setStepScores] = useState({});
   const [currentTime, setCurrentTime] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const bestScoreRef = useRef(0);
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
@@ -81,6 +85,8 @@ export default function PracticeMode({ keyframes = [], steps = [] }) {
     const refLandmarks = findRefLandmarks(keyframes, currentTime);
     const s = computeScore(landmarks, refLandmarks);
     setScore(s);
+    if (s !== null && s > bestScoreRef.current) bestScoreRef.current = s;
+
     const activeStep = steps.findIndex(
       (step) => currentTime >= step.startTime && currentTime < step.endTime
     );
@@ -90,61 +96,59 @@ export default function PracticeMode({ keyframes = [], steps = [] }) {
         [activeStep]: Math.round(((prev[activeStep] ?? s) + s) / 2),
       }));
     }
-  }, [landmarks, currentTime, keyframes, steps]);
+  }, [landmarks, currentTime, keyframes, steps, danceId]);
 
   return (
-    <div style={{ display: "flex", gap: 12, height: "100%", width: "100%", overflow: "hidden" }}>
+    <div className="flex flex-col md:flex-row gap-3 w-full md:h-full overflow-hidden -mx-2 md:mx-0">
 
-      {/* Reference video */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <p style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>
-          Reference
-        </p>
-        <div style={{ flex: 1, background: "#000", borderRadius: 16, overflow: "hidden", minHeight: 0 }}>
-          <video
-            ref={videoRef}
-            src="/sample-dance.mp4"
-            controls
-            onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)}
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
-          />
+      <div className="flex gap-2 md:flex-1 md:min-h-0">
+        <div className="flex-1 flex flex-col min-w-0">
+          <p className="text-[11px] tracking-wider uppercase text-white/30 mb-1">Reference</p>
+          <div className="relative bg-black rounded-2xl overflow-hidden aspect-[9/16] md:aspect-auto md:flex-1 md:min-h-0">
+            <video
+              ref={videoRef}
+              src="/sample-dance.mp4"
+              controls
+              onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 flex flex-col min-w-0">
+          <p className="text-[11px] tracking-wider uppercase text-white/30 mb-1">
+            You <span className="text-cyan-400">({status})</span>
+          </p>
+          <div className="relative bg-black rounded-2xl overflow-hidden aspect-[9/16] md:aspect-auto md:flex-1 md:min-h-0">
+            <video ref={webcamRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover [transform:scaleX(-1)]" />
+            <canvas ref={canvasRef} width={640} height={480} className="absolute inset-0 w-full h-full [transform:scaleX(-1)]" />
+          </div>
         </div>
       </div>
 
-      {/* Webcam */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <p style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>
-          You <span style={{ color: "#22d3ee" }}>({status})</span>
-        </p>
-        <div style={{ flex: 1, position: "relative", background: "#000", borderRadius: 16, overflow: "hidden", minHeight: 0 }}>
-          <video ref={webcamRef} autoPlay playsInline muted style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)" }} />
-          <canvas ref={canvasRef} width={640} height={480} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", transform: "scaleX(-1)" }} />
+      <div className="flex flex-col gap-3 w-full md:w-[200px] md:flex-shrink-0">
+        <div className="flex md:flex-col gap-3">
+          <div className="flex-1 bg-[#111113] rounded-xl border border-[#1f1f23] p-2 md:p-4 text-center">
+            <p className="text-[9px] md:text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-1 md:mb-2">Match score</p>
+            <p className="text-2xl md:text-5xl font-semibold leading-none" style={{ color: scoreColor(score) }}>
+              {score !== null ? score : "—"}
+            </p>
+          </div>
+
+          <div className="flex-1 bg-[#111113] rounded-xl border border-[#1f1f23] p-2 md:p-4 text-center">
+            <p className="text-[9px] md:text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-1 md:mb-2">Best this session</p>
+            <p className="text-2xl md:text-3xl font-semibold leading-none" style={{ color: scoreColor(bestScoreRef.current) }}>
+              {bestScoreRef.current > 0 ? bestScoreRef.current : "—"}
+            </p>
+          </div>
         </div>
-      </div>
-
-      {/* Score sidebar */}
-      <div style={{ width: 200, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-
-        {/* Live score */}
-        <div style={{ background: "#111113", borderRadius: 12, border: "1px solid #1f1f23", padding: 16, textAlign: "center" }}>
-          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#52525b", marginBottom: 8 }}>
-            Match score
-          </p>
-          <p style={{ fontSize: 48, fontWeight: 600, lineHeight: 1, color: scoreColor(score) }}>
-            {score !== null ? score : "—"}
-          </p>
-        </div>
-
-        {/* Step scores */}
-        <div style={{ background: "#111113", borderRadius: 12, border: "1px solid #1f1f23", padding: 16, flex: 1 }}>
-          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "#52525b", marginBottom: 12 }}>
-            Steps
-          </p>
-          <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 flex-1 min-h-0 max-h-48 md:max-h-none overflow-auto">
+          <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-3">Steps</p>
+          <ul className="flex flex-col gap-2">
             {steps.map((step, i) => (
-              <li key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: 13, color: "#a1a1aa" }}>{step.label ?? `Step ${i + 1}`}</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: scoreColor(stepScores[i] ?? null) }}>
+              <li key={i} className="flex items-center justify-between">
+                <span className="text-sm text-zinc-400">{step.label ?? `Step ${i + 1}`}</span>
+                <span className="text-sm font-semibold" style={{ color: scoreColor(stepScores[i] ?? null) }}>
                   {stepScores[i] !== undefined ? stepScores[i] : "—"}
                 </span>
               </li>
@@ -152,6 +156,25 @@ export default function PracticeMode({ keyframes = [], steps = [] }) {
           </ul>
         </div>
 
+        <button
+          onClick={async () => {
+            if (!danceId || bestScoreRef.current === 0) return;
+            setSaving(true);
+            await saveProgress({ danceId, score: bestScoreRef.current });
+            setSaving(false);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+          }}
+          disabled={saving || bestScoreRef.current === 0 || !danceId}
+          className="w-full py-3 rounded-[10px] text-[13px] font-bold transition-all"
+          style={{
+            background: saved ? "#4ade80" : "#22d3ee",
+            color: saved ? "#052e16" : "#083344",
+            opacity: (saving || bestScoreRef.current === 0 || !danceId) ? 0.4 : 1,
+          }}
+        >
+          {saving ? "Saving…" : saved ? "✓ Saved!" : "Save Progress"}
+        </button>
       </div>
     </div>
   );

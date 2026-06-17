@@ -4,8 +4,12 @@ import shutil
 import tempfile
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from supabase import create_client
 from extract_pose import extract_keypoints
 from segment_steps import segment_steps
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -16,53 +20,72 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-OUTPUT_DIR = "processed"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+supabase = create_client(
+    os.environ["SUPABASE_URL"],
+    os.environ["SUPABASE_SERVICE_ROLE_KEY"],
+)
 
 @app.post("/dances")
 async def process_dance(file: UploadFile = File(...)):
-    # 1. Save upload to a temp file
     suffix = os.path.splitext(file.filename)[1]
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
 
     try:
-        # 2. Extract keypoints
         frames = extract_keypoints(tmp_path)
-
-        # 3. Segment steps
         steps = segment_steps(frames, min_step_duration=2.5, smoothing_window=8)
 
-        # 4. Save results
-        dance_id = file.filename.replace(" ", "_").replace(suffix, "")
-        result = {
-            "id": dance_id,
-            "title": dance_id,
-            "keyframes": frames,
-            "steps": steps,
-        }
+        storage_path = f"dances/{file.filename}"
+        with open(tmp_path, "rb") as f:
+            supabase.storage.from_("videos").upload(
+                storage_path, f, {"content-type": "video/mp4", "upsert": "true"}
+            )
 
-        out_path = os.path.join(OUTPUT_DIR, f"{dance_id}.json")
-        with open(out_path, "w") as f:
-            json.dump(result, f)
+        video_url = supabase.storage.from_("videos").get_public_url(storage_path)
+
+        title = os.path.splitext(file.filename)[0].replace("-", " ").replace("_", " ").title()
+        result = supabase.table("dances").insert({
+            "title": title,
+            "video_url": video_url,
+            "keypoints": frames,
+            "steps": steps,
+            "difficulty": "beginner",
+        }).execute()
+
+        dance = result.data[0]
 
         return {
-            "id": dance_id,
+            "id": dance["id"],
+            "title": dance["title"],
             "steps": steps,
             "frame_count": len(frames),
+            "video_url": video_url,
         }
 
     finally:
         os.unlink(tmp_path)
 
+
+@app.get("/dances")
+async def list_dances():
+    result = supabase.table("dances").select("id, title, steps, difficulty, video_url").execute()
+    return result.data
+
+
+@app.get("/dances/by-title/{title}")
+async def get_dance_by_title(title: str):
+    result = supabase.table("dances").select("*").ilike("title", title).limit(1).execute()
+    if not result.data:
+        return {"error": "Dance not found"}
+    return result.data[0]
+
+
 @app.get("/dances/{dance_id}")
 async def get_dance(dance_id: str):
-    out_path = os.path.join(OUTPUT_DIR, f"{dance_id}.json")
-    if not os.path.exists(out_path):
-        return {"error": "Dance not found"}, 404
-    with open(out_path) as f:
-        return json.load(f)
+    result = supabase.table("dances").select("*").eq("id", dance_id).single().execute()
+    return result.data
+
 
 @app.get("/")
 async def root():
