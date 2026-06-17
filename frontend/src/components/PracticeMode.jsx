@@ -129,21 +129,21 @@ export default function PracticeMode({  videoUrl, keyframes = [], steps = [], da
       <div className="flex flex-col gap-3 w-full md:w-50 md:shrink-0">
         <div className="flex md:flex-col gap-3">
           <div className="flex-1 bg-[#111113] rounded-xl border border-[#1f1f23] p-2 md:p-4 text-center">
-            <p className="text-[9px] md:text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-1 md:mb-2">Match score</p>
+            <p className="text-[9px] md:text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-1 md:mb-2">Match score</p>
             <p className="text-2xl md:text-5xl font-semibold leading-none" style={{ color: scoreColor(score) }}>
               {score !== null ? score : "—"}
             </p>
           </div>
 
           <div className="flex-1 bg-[#111113] rounded-xl border border-[#1f1f23] p-2 md:p-4 text-center">
-            <p className="text-[9px] md:text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-1 md:mb-2">Best this session</p>
+            <p className="text-[9px] md:text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-1 md:mb-2">Best this session</p>
             <p className="text-2xl md:text-3xl font-semibold leading-none" style={{ color: scoreColor(bestScoreRef.current) }}>
               {bestScoreRef.current > 0 ? bestScoreRef.current : "—"}
             </p>
           </div>
         </div>
         <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 flex-1 min-h-0 max-h-48 md:max-h-none overflow-auto">
-          <p className="text-[10px] font-semibold tracking-[0.1em] uppercase text-zinc-600 mb-3">Steps</p>
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-3">Steps</p>
           <ul className="flex flex-col gap-2">
             {steps.map((step, i) => (
               <li key={i} className="flex items-center justify-between">

@@ -3,12 +3,12 @@ export default function Nav({ tab, setTab, onSignOut, onUpload }) {
 
   return (
     <>
-      <header className="flex items-center justify-between px-4 md:px-6 h-[52px] border-b border-[#111113] bg-[#09090b] flex-shrink-0 w-full">
+      <header className="flex items-center justify-between px-4 md:px-6 h-13 border-b border-[#111113] bg-[#09090b] shrink-0 w-full">
         <span className="text-[11px] font-semibold tracking-[0.12em] uppercase text-cyan-400">
           Dance Coach
         </span>
 
-        <div className="hidden md:flex gap-0.5 bg-[#1c1c1f] rounded-[10px] p-[3px]">
+        <div className="hidden md:flex gap-0.5 bg-[#1c1c1f] rounded-[10px] p-0.75">
           {tabs.map((t) => (
             <button
               key={t}
