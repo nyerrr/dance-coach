@@ -7,10 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 from extract_pose import extract_keypoints
 from segment_steps import segment_steps
-from dotenv import load_dotenv
 from uuid import uuid4
 
-load_dotenv()
 
 app = FastAPI()
 
