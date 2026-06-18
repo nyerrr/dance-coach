@@ -38,7 +38,7 @@ export default function UploadDance({ onClose, onSaved }) {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("http://localhost:8000/dances", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/dances`, {
         method: "POST",
         body: formData,
       });

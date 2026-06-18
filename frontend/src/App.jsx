@@ -18,9 +18,10 @@ export default function App() {
   const [videoUrl, setVideoUrl] = useState(null);
 
   async function loadDance(idOrTitle, byTitle = false) {
+    const API = import.meta.env.VITE_API_URL;
     const url = byTitle
-      ? `http://localhost:8000/dances/by-title/${encodeURIComponent(idOrTitle)}`
-      : `http://localhost:8000/dances/${idOrTitle}`;
+      ? `${API}/dances/by-title/${encodeURIComponent(idOrTitle)}`
+      : `${API}/dances/${idOrTitle}`;
     const res = await fetch(url);
     const data = await res.json();
     if (data.error) return;
