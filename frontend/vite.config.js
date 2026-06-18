@@ -5,22 +5,47 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   plugins: [
-    react(), 
+    react(),
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
         name: "Dance Coach",
         short_name: "DanceCoach",
-        theme_color: "#15101c",
-        background_color: "#15101c",
+        theme_color: "#09090b",
+        background_color: "#09090b",
         display: "standalone",
+        scope: "/",
+        start_url: "/",
+        id: "/",
         icons: [
-          {src: "icon-192.png", sizes: "192x192", type: "image/png"},
-          {src: "icon-512.png", sizes: "512x512", type: "image/png"}
-        ],  
+          {
+            src: "/icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any",
+          },
+          {
+            src: "/icon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+        ],
+        screenshots: [
+          {
+            src: "/icon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+            form_factor: "wide",
+          },
+          {
+            src: "/icon-512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
       },
-
       workbox: {
         runtimeCaching: [
           {
@@ -32,9 +57,9 @@ export default defineConfig({
             urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/@mediapipe\//,
             handler: "CacheFirst",
             options: { cacheName: "pose-wasm-cache" },
-          }
-        ]
-      }
-    })
+          },
+        ],
+      },
+    }),
   ],
 });
