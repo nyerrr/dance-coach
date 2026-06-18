@@ -8,6 +8,9 @@ from supabase import create_client
 from extract_pose import extract_keypoints
 from segment_steps import segment_steps
 from uuid import uuid4
+from dotenv import load_dotenv
+
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 
 app = FastAPI()
@@ -41,7 +44,9 @@ async def process_dance(file: UploadFile = File(...)):
         storage_path = f"dances/{uuid4()}{suffix}"
         with open(tmp_path, "rb") as f:
             supabase.storage.from_("videos").upload(
-                storage_path, f, {"content-type": "video/mp4", "upsert": "true"}
+                path=storage_path,
+                file=f,
+                file_options={"content-type": "video/mp4", "upsert": "true"}
             )
 
         video_url = supabase.storage.from_("videos").get_public_url(storage_path)

@@ -41,7 +41,7 @@ export default function DancePlayer({ videoUrl, steps = [] }) {
     <div className="flex flex-col md:flex-row gap-3 w-full md:h-full overflow-hidden">
 
       <div className="flex items-center justify-center min-w-0 md:flex-1 md:min-h-0">
-        <div className="relative w-full max-w-105 md:max-w-none md:w-auto md:h-full aspect-3/4 bg-black rounded-2xl overflow-hidden">
+        <div className="relative w-full max-w-105 md:max-w-none md:w-auto md:h-full bg-black rounded-2xl overflow-hidden">
           <span className="absolute top-3 left-3 z-10 text-[11px] tracking-wider uppercase text-white/30 pointer-events-none">
             Reference
           </span>
@@ -50,7 +50,7 @@ export default function DancePlayer({ videoUrl, steps = [] }) {
             src={videoUrl}
             controls
             onTimeUpdate={handleTimeUpdate}
-            className={`w-full h-full object-cover ${mirrored ? "transform-[scaleX(-1)]" : ""}`}
+            className={`w-full h-full object-contain ${mirrored ? "transform-[scaleX(-1)]" : ""}`}
           />
         </div>
       </div>
