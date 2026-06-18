@@ -86,8 +86,23 @@ export default function App() {
               </div>
         )}
         {tab === "practice" && (
-          <PracticeMode videoUrl={videoUrl} keyframes={keyframes} steps={steps} danceId={danceId} />
-        )}
+            videoUrl
+              ? <PracticeMode videoUrl={videoUrl} keyframes={keyframes} steps={steps} danceId={danceId} />
+              : <div className="flex flex-col items-center justify-center h-full gap-3 text-zinc-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  <p className="text-sm">No dance loaded</p>
+                  <button
+                    onClick={() => setShowUpload(true)}
+                    className="text-xs text-cyan-500 hover:text-cyan-400 transition-colors"
+                  >
+                    Upload a dance to start practicing
+                  </button>
+                </div>
+          )}
         {tab === "progress" && <Progress />}
       </main>
 

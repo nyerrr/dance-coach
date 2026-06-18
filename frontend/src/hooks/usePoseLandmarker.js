@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPoseLandmarker } from "../lib/poseDetector";
 
-const SMOOTH_FRAMES = 5;
+const SMOOTH_FRAMES = 2;
 
 export function usePoseLandmarker(videoRef) {
     const [landmarks, setLandmarks] = useState(null);

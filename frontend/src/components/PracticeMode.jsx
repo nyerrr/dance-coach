@@ -44,24 +44,25 @@ function findRefLandmarks(keyframes, currentTime) {
 }
 
 function scoreColor(s) {
-  if (s === null) return "#71717a";
+  if (s === null || s === undefined) return "#2a2a3a";
   if (s >= 80) return "#4ade80";
   if (s >= 50) return "#facc15";
   return "#f87171";
 }
 
-export default function PracticeMode({  videoUrl, keyframes = [], steps = [], danceId }) {
+export default function PracticeMode({ videoUrl, keyframes = [], steps = [], danceId }) {
   const videoRef = useRef(null);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const { landmarks, status } = usePoseLandmarker(webcamRef);
+  const bestScoreRef = useRef(0);
 
   const [score, setScore] = useState(null);
   const [stepScores, setStepScores] = useState({});
   const [currentTime, setCurrentTime] = useState(0);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const bestScoreRef = useRef(0);
+  const [, forceUpdate] = useState(0);
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
@@ -75,8 +76,12 @@ export default function PracticeMode({  videoUrl, keyframes = [], steps = [], da
     ctx.clearRect(0, 0, 640, 480);
     if (landmarks) {
       const drawingUtils = new DrawingUtils(ctx);
-      drawingUtils.drawConnectors(landmarks, PoseLandmarker.POSE_CONNECTIONS, { color: "#6ee7ff", lineWidth: 2 });
-      drawingUtils.drawLandmarks(landmarks, { color: "#ff5fae", radius: 3 });
+      drawingUtils.drawConnectors(landmarks, PoseLandmarker.POSE_CONNECTIONS, {
+        color: "rgba(34,211,238,0.6)", lineWidth: 2,
+      });
+      drawingUtils.drawLandmarks(landmarks, {
+        color: "#22d3ee", fillColor: "rgba(34,211,238,0.2)", radius: 3,
+      });
     }
   }, [landmarks]);
 
@@ -85,8 +90,10 @@ export default function PracticeMode({  videoUrl, keyframes = [], steps = [], da
     const refLandmarks = findRefLandmarks(keyframes, currentTime);
     const s = computeScore(landmarks, refLandmarks);
     setScore(s);
-    if (s !== null && s > bestScoreRef.current) bestScoreRef.current = s;
-
+    if (s !== null && s > bestScoreRef.current) {
+      bestScoreRef.current = s;
+      forceUpdate((n) => n + 1);
+    }
     const activeStep = steps.findIndex(
       (step) => currentTime >= step.startTime && currentTime < step.endTime
     );
@@ -96,86 +103,134 @@ export default function PracticeMode({  videoUrl, keyframes = [], steps = [], da
         [activeStep]: Math.round(((prev[activeStep] ?? s) + s) / 2),
       }));
     }
-  }, [landmarks, currentTime, keyframes, steps, danceId]);
+  }, [landmarks, currentTime, keyframes, steps]);
+
+  const activeStepIndex = steps.findIndex(
+    (s) => currentTime >= s.startTime && currentTime < s.endTime
+  );
 
   return (
-    <div className="flex flex-col md:flex-row gap-3 w-full md:h-full overflow-hidden -mx-2 md:mx-0">
+    <div className="flex flex-col gap-3 w-full h-full overflow-auto md:overflow-hidden">
 
-      <div className="flex gap-2 md:flex-1 md:min-h-0">
-        <div className="flex-1 flex flex-col min-w-0">
-          <p className="text-[11px] tracking-wider uppercase text-white/30 mb-1">Reference</p>
-          <div className="relative bg-black rounded-2xl overflow-hidden aspect-9/16 md:aspect-auto md:flex-1 md:min-h-0">
-            <video
-              ref={videoRef}
-              src={videoUrl}
-              controls
-              onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)}
-              className="w-full h-full object-contain"
-            />
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-col min-w-0">
-          <p className="text-[11px] tracking-wider uppercase text-white/30 mb-1">
-            You <span className="text-cyan-400">({status})</span>
+      {/* Score bar */}
+      <div className="flex gap-2 shrink-0 h-16">
+        <div className="flex-1 bg-[#0f0f14] border border-[#1a1a24] rounded-xl px-3 py-2 flex items-center gap-3">
+          <p className="text-2xl font-bold leading-none" style={{ color: scoreColor(score) }}>
+            {score !== null ? score : "—"}
           </p>
-          <div className="relative bg-black rounded-2xl overflow-hidden aspect-9/16 md:aspect-auto md:flex-1 md:min-h-0">
-            <video ref={webcamRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover transform-[scaleX(-1)]" />
-            <canvas ref={canvasRef} width={640} height={480} className="absolute inset-0 w-full h-full transform-[scaleX(-1)]" />
+          <div>
+            <p className="text-[9px] font-bold tracking-widest uppercase text-zinc-600">Match score</p>
+            <p className="text-[10px] text-zinc-600 mt-0.5 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block" />
+              Live
+            </p>
+          </div>
+        </div>
+        <div className="flex-1 bg-[#0f0f14] border border-[#1a1a24] rounded-xl px-4 py-3 flex items-center gap-3">
+          <p className="text-3xl font-bold leading-none" style={{ color: scoreColor(bestScoreRef.current || null) }}>
+            {bestScoreRef.current > 0 ? bestScoreRef.current : "—"}
+          </p>
+          <div>
+            <p className="text-[9px] font-bold tracking-widest uppercase text-zinc-600">Best</p>
+            <p className="text-[10px] text-zinc-600 mt-0.5">This session</p>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 w-full md:w-50 md:shrink-0">
-        <div className="flex md:flex-col gap-3">
-          <div className="flex-1 bg-[#111113] rounded-xl border border-[#1f1f23] p-2 md:p-4 text-center">
-            <p className="text-[9px] md:text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-1 md:mb-2">Match score</p>
-            <p className="text-2xl md:text-5xl font-semibold leading-none" style={{ color: scoreColor(score) }}>
-              {score !== null ? score : "—"}
-            </p>
-          </div>
+      {/* Videos */}
+      <div className="flex gap-2 shrink-0 h-80 md:flex-1 md:h-auto md:min-h-0">
 
-          <div className="flex-1 bg-[#111113] rounded-xl border border-[#1f1f23] p-2 md:p-4 text-center">
-            <p className="text-[9px] md:text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-1 md:mb-2">Best this session</p>
-            <p className="text-2xl md:text-3xl font-semibold leading-none" style={{ color: scoreColor(bestScoreRef.current) }}>
-              {bestScoreRef.current > 0 ? bestScoreRef.current : "—"}
-            </p>
+        {/* Reference */}
+        <div className="flex-1 relative bg-[#0a0a12] border border-[#1a1a24] rounded-[14px] overflow-hidden">
+          <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-md">
+            <span className="text-[9px] font-semibold tracking-widest uppercase text-white/40">Reference</span>
           </div>
-        </div>
-        <div className="bg-[#111113] rounded-xl border border-[#1f1f23] p-4 flex-1 min-h-0 max-h-48 md:max-h-none overflow-auto">
-          <p className="text-[10px] font-semibold tracking-widest uppercase text-zinc-600 mb-3">Steps</p>
-          <ul className="flex flex-col gap-2">
-            {steps.map((step, i) => (
-              <li key={i} className="flex items-center justify-between">
-                <span className="text-sm text-zinc-400">{step.label ?? `Step ${i + 1}`}</span>
-                <span className="text-sm font-semibold" style={{ color: scoreColor(stepScores[i] ?? null) }}>
-                  {stepScores[i] !== undefined ? stepScores[i] : "—"}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            controls
+            onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)}
+            className="w-full h-full object-contain"
+          />
         </div>
 
-        <button
-          onClick={async () => {
-            if (!danceId || bestScoreRef.current === 0) return;
-            setSaving(true);
-            await saveProgress({ danceId, score: bestScoreRef.current });
-            setSaving(false);
-            setSaved(true);
-            setTimeout(() => setSaved(false), 2000);
-          }}
-          disabled={saving || bestScoreRef.current === 0 || !danceId}
-          className="w-full py-3 rounded-[10px] text-[13px] font-bold transition-all"
-          style={{
-            background: saved ? "#4ade80" : "#22d3ee",
-            color: saved ? "#052e16" : "#083344",
-            opacity: (saving || bestScoreRef.current === 0 || !danceId) ? 0.4 : 1,
-          }}
-        >
-          {saving ? "Saving…" : saved ? "✓ Saved!" : "Save Progress"}
-        </button>
+        {/* Webcam */}
+        <div className="flex-1 relative bg-[#0a0a12] border border-[#1a1a24] rounded-[14px] overflow-hidden">
+          <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-md">
+            <span className="text-[9px] font-semibold tracking-widest uppercase text-white/40">You</span>
+          </div>
+          <div className="absolute bottom-2 left-2 z-10">
+            <span className="text-[9px] font-semibold text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-2 py-0.5 rounded-md">
+              ● {status}
+            </span>
+          </div>
+          <video
+            ref={webcamRef}
+            autoPlay
+            playsInline
+            muted
+            className="absolute inset-0 w-full h-full object-cover transform-[scaleX(-1)]"
+          />
+          <canvas
+            ref={canvasRef}
+            width={640}
+            height={480}
+            className="absolute inset-0 w-full h-full transform-[scaleX(-1)]"
+          />
+        </div>
       </div>
+
+      {/* Steps */}
+      <div className="bg-[#0f0f14] border border-[#1a1a24] rounded-[14px] p-4 shrink-0">
+        <p className="text-[9px] font-bold tracking-[0.12em] uppercase text-zinc-600 mb-3">Step scores</p>
+        <ul className="flex flex-col gap-1">
+          {steps.map((step, i) => (
+            <li
+              key={i}
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-[9px] border transition-all ${
+                i === activeStepIndex
+                  ? "bg-[#071e26] border-[#0e4f63]"
+                  : "bg-[#0a0a10] border-transparent"
+              }`}
+            >
+              <span className={`text-[10px] font-bold w-4 text-center shrink-0 ${
+                i === activeStepIndex ? "text-cyan-400" : "text-zinc-700"
+              }`}>
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className={`flex-1 text-xs ${
+                i === activeStepIndex ? "text-[#e0f7fa]" : "text-zinc-500"
+              }`}>
+                {step.label ?? `Step ${i + 1}`}
+              </span>
+              <span className="text-xs font-bold" style={{ color: scoreColor(stepScores[i] ?? null) }}>
+                {stepScores[i] !== undefined ? stepScores[i] : "—"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Save button */}
+      <button
+        onClick={async () => {
+          if (!danceId || bestScoreRef.current === 0) return;
+          setSaving(true);
+          await saveProgress({ danceId, score: bestScoreRef.current });
+          setSaving(false);
+          setSaved(true);
+          setTimeout(() => setSaved(false), 2000);
+        }}
+        disabled={saving || bestScoreRef.current === 0 || !danceId}
+        className="w-full py-3.5 rounded-xl text-sm font-bold border-none cursor-pointer shrink-0 transition-all disabled:opacity-40"
+        style={{
+          background: saved ? "#4ade80" : "#22d3ee",
+          color: saved ? "#052e16" : "#083344",
+        }}
+      >
+        {saving ? "Saving…" : saved ? "✓ Saved!" : "Save Progress →"}
+      </button>
+
     </div>
   );
 }
