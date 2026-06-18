@@ -1,9 +1,13 @@
 import os
-import json
 import shutil
 import tempfile
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from supabase import create_client
 from extract_pose import extract_keypoints
 from segment_steps import segment_steps
@@ -12,8 +16,14 @@ from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
+limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI()
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(status_code=429, content={"error": "Too many requests"})
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,7 +41,8 @@ supabase = create_client(
 )
 
 @app.post("/dances")
-async def process_dance(file: UploadFile = File(...)):
+@limiter.limit("5/minute")
+async def process_dance(request: Request, file: UploadFile = File(...)):
     suffix = os.path.splitext(file.filename)[1]
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
         shutil.copyfileobj(file.file, tmp)

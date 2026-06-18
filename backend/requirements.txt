@@ -5,3 +5,4 @@ supabase
 opencv-python-headless
 mediapipe
 python-dotenv
+slowapi
